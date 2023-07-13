@@ -92,14 +92,14 @@ file (DOWNLOAD "${SPECTEST_URL}/${SPECTEST_VERSION}/mainnet.tar.gz" ${CMAKE_SOUR
 add_custom_target( spec_test_unpack 
     DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz )
 
-# add_custom_command(TARGET spec_test_unpack PRE_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/tests/mainnet
-#    COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
-#    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-#    DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
-#    COMMENT "Unpacking mainnet.tar.gz"
-#    VERBATIM
-#)
+add_custom_command(TARGET spec_test_unpack PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/tests/mainnet
+    COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
+    COMMENT "Unpacking mainnet.tar.gz"
+    VERBATIM
+)
 
 add_dependencies( test_serialize spec_test_unpack )
 
