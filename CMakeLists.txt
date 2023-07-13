@@ -4,8 +4,8 @@ project( ssz++ VERSION 0.1 LANGUAGES C CXX )
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -march=native -O3 -m64  -ffast-math -fdiagnostics-color")
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall -Werror -march=native -g -m64 -ffast-math -fdiagnostics-color")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -march=native -O3  -fdiagnostics-color")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall -Werror -march=native -fdiagnostics-color")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++")
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.cmake_modules/")
 
@@ -55,6 +55,12 @@ if(TIDY)
 	set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 endif()
 
+add_executable( bench_beacon_state 
+                lib/uint256/uint128_t.cpp
+                lib/uint256/uint256_t.cpp
+                testing/bench_beacon_state.cpp
+            )
+target_link_libraries(bench_beacon_state hashtree)
 add_executable( test_concepts
                 lib/uint256/uint128_t.cpp
                 lib/uint256/uint256_t.cpp

@@ -26,6 +26,9 @@
 #include "fork.hpp"
 #include "validator.hpp"
 #include "historical_summary.hpp"
+#include "beacon_block.hpp"
+#include "sync_committee.hpp"
+
 namespace ssz {
 
 constexpr std::size_t SLOTS_PER_HISTORICAL_ROOT{8192};
