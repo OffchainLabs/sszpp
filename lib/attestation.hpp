@@ -63,11 +63,10 @@ struct attestation_t : ssz_variable_size_container {
 #endif
 };
 
-struct indexed_attestation_t : ssz_container {
+struct indexed_attestation_t : ssz_variable_size_container {
     ssz::list<ValidatorIndex, MAX_VALIDATORS_PER_COMMITEE> attesting_indices;
     attestation_data_t data;
     signature_t signature;
-    struct variable_size : std::true_type {};
 
     constexpr auto operator<=>(const indexed_attestation_t& rhs) const noexcept = default;
     constexpr bool operator==(const indexed_attestation_t& rhs) const noexcept = default;
@@ -81,11 +80,10 @@ struct indexed_attestation_t : ssz_container {
 #endif
 };
 
-struct aggregate_and_proof_t : ssz_container {
+struct aggregate_and_proof_t : ssz_variable_size_container {
     ValidatorIndex aggregator_index;
     attestation_t aggregate;
     signature_t selection_proof;
-    struct variable_size : std::true_type {};
 
     constexpr auto operator<=>(const aggregate_and_proof_t& rhs) const noexcept = default;
     constexpr bool operator==(const aggregate_and_proof_t& rhs) const noexcept = default;
@@ -98,10 +96,9 @@ struct aggregate_and_proof_t : ssz_container {
 #endif
 };
 
-struct signed_aggregate_and_proof_t : ssz_container {
+struct signed_aggregate_and_proof_t : ssz_variable_size_container {
     aggregate_and_proof_t message;
     signature_t signature;
-    struct variable_size : std::true_type {};
 
     constexpr auto operator<=>(const signed_aggregate_and_proof_t& rhs) const noexcept = default;
     constexpr bool operator==(const signed_aggregate_and_proof_t& rhs) const noexcept = default;
@@ -112,5 +109,4 @@ struct signed_aggregate_and_proof_t : ssz_container {
               std::pair<const char*, signature_t&>("signature", signature));
 #endif
 };
-
 }  // namespace ssz
