@@ -30,7 +30,7 @@ find_path(Hashtree_INCLUDE_DIR NAMES hashtree.h)
 mark_as_advanced(Hashtree_INCLUDE_DIR)
 
 # Look for the necessary library
-find_library(Hashtree_LIBRARY NAMES hashtree.a)
+find_library(Hashtree_LIBRARY NAMES libhashtree.a)
 mark_as_advanced(Hashtree_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
