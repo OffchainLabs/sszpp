@@ -52,6 +52,7 @@ struct execution_payload_t : ssz_variable_size_container {
 
     SSZ_CONT(parent_hash, fee_recipient, state_root, receipts_root, logs_bloom, prev_randao, block_number, gas_limit,
              gas_used, timestamp, extra_data, base_fee_per_gas, block_hash, transactions, withdrawals);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Root&>("parent_hash", parent_hash),
               std::pair<const char*, execution_address_t&>("fee_recipient", fee_recipient),
               std::pair<const char*, Root&>("state_root", state_root),
@@ -69,6 +70,7 @@ struct execution_payload_t : ssz_variable_size_container {
                                                                                               transactions),
               std::pair<const char*, ssz::list<withdrawal_t, MAX_WITHDRAWALS_PER_PAYLOAD>&>("withdrawals",
                                                                                             withdrawals));
+#endif
 };
 
 struct execution_payload_header_t : ssz_variable_size_container {
@@ -87,6 +89,7 @@ struct execution_payload_header_t : ssz_variable_size_container {
 
     SSZ_CONT(parent_hash, fee_recipient, state_root, receipts_root, logs_bloom, prev_randao, block_number, gas_limit,
              gas_used, timestamp, extra_data, base_fee_per_gas, block_hash, transactions_root, withdrawals_root);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Root&>("parent_hash", parent_hash),
               std::pair<const char*, execution_address_t&>("fee_recipient", fee_recipient),
               std::pair<const char*, Root&>("state_root", state_root),
@@ -102,6 +105,7 @@ struct execution_payload_header_t : ssz_variable_size_container {
               std::pair<const char*, Root&>("block_hash", block_hash),
               std::pair<const char*, Root&>("transactions_root", transactions_root),
               std::pair<const char*, Root&>("withdrawals_root", withdrawals_root));
+#endif
 };
 }  // namespace ssz
 

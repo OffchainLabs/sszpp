@@ -124,7 +124,7 @@ void test_ssz_static(const std::string &&path, bool heap = false) {
 }
 
 void test_merkleize() {
-    hashtree_init();
+    hashtree_init(NULL);
     ssz::chunk_t one_hash{};
     ssz::hash_2_chunks(one_hash, ssz::zero_hash, ssz::zero_hash);
     TEST_CHECK(one_hash == ssz::zero_hash_array[1]);

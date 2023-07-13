@@ -31,8 +31,10 @@ struct fork_t : ssz_container {
     constexpr bool operator==(const fork_t& rhs) const noexcept = default;
 
     SSZ_CONT(previous_version, current_version, epoch);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, version_t&>("previous_version", previous_version),
               std::pair<const char*, version_t&>("current_version", current_version),
               std::pair<const char*, Epoch&>("epoch", epoch));
+#endif
 };
 }

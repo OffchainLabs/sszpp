@@ -35,9 +35,11 @@ struct bls_to_execution_change_t : ssz_container {
     constexpr bool operator==(const bls_to_execution_change_t& rhs) const noexcept = default;
 
     SSZ_CONT(validator_index, from_bls_pubkey, to_execution_address);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, ValidatorIndex&>("validator_index", validator_index),
               std::pair<const char*, bls_pubkey_t&>("from_bls_pubkey", from_bls_pubkey),
               std::pair<const char*, execution_address_t&>("to_execution_address", to_execution_address));
+#endif
 };
 
 struct signed_bls_to_execution_change_t : ssz_container {
@@ -48,8 +50,10 @@ struct signed_bls_to_execution_change_t : ssz_container {
     constexpr bool operator==(const signed_bls_to_execution_change_t& rhs) const noexcept = default;
 
     SSZ_CONT(message, signature);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, bls_to_execution_change_t&>("message", message),
               std::pair<const char*, signature_t&>("signature", signature));
+#endif
 };
 
 using WithdrawalIndex = std::uint64_t;
@@ -64,10 +68,12 @@ struct withdrawal_t : ssz_container {
     constexpr bool operator==(const withdrawal_t& rhs) const noexcept = default;
 
     SSZ_CONT(index, validator_index, address, amount);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, WithdrawalIndex&>("index", index),
               std::pair<const char*, ValidatorIndex&>("validator_index", validator_index),
               std::pair<const char*, execution_address_t&>("address", address),
               std::pair<const char*, Gwei&>("amount", amount));
+#endif
 };
 
 }  // namespace ssz

@@ -31,7 +31,9 @@ struct historical_summary_t : ssz_container {
     constexpr bool operator==(const historical_summary_t& rhs) const noexcept = default;
 
     SSZ_CONT(block_summary_root, state_summary_root);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Root&>("block_summary_root", block_summary_root),
               std::pair<const char*, Root&>("state_summary_root", state_summary_root));
+#endif
 };
 }

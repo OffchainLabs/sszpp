@@ -102,6 +102,7 @@ struct beacon_state_t : ssz_variable_size_container {
              previous_justified_checkpoint, current_justified_checkpoint, finalized_checkpoint, inactivity_scores,
              current_sync_committee, next_sync_committee, latest_execution_payload_header, next_withdrawal_index,
              next_withdrawal_validator_index, historical_summaries);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, std::uint64_t&>("genesis_time", genesis_time),
               std::pair<const char*, Root&>("genesis_validators_root", genesis_validators_root),
               std::pair<const char*, Slot&>("slot", slot), std::pair<const char*, fork_t&>("fork", fork),
@@ -136,6 +137,7 @@ struct beacon_state_t : ssz_variable_size_container {
               std::pair<const char*, decltype(next_withdrawal_validator_index)&>("next_withdrawal_validator_index",
                                                                                  next_withdrawal_validator_index),
               std::pair<const char*, decltype(historical_summaries)&>("historical_summaries", historical_summaries));
+#endif
 };
 
 }  // namespace ssz

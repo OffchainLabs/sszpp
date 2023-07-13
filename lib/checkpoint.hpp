@@ -33,6 +33,8 @@ struct checkpoint_t : ssz_container {
     constexpr bool operator==(const checkpoint_t& rhs) const noexcept = default;
 
     SSZ_CONT(epoch, root);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Epoch&>("epoch", epoch), std::pair<const char*, Root&>("root", root));
+#endif
 };
 }

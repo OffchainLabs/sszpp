@@ -35,6 +35,7 @@ struct validator_t : ssz_container {
 
     SSZ_CONT(pubkey, withdrawal_credentials, effective_balance, slashed, activation_eligibility_epoch, activation_epoch,
              exit_epoch, withdrawable_epoch);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, bls_pubkey_t&>("pubkey", pubkey),
               std::pair<const char*, Root&>("withdrawal_credentials", withdrawal_credentials),
               std::pair<const char*, Gwei&>("effective_balance", effective_balance),
@@ -43,5 +44,6 @@ struct validator_t : ssz_container {
               std::pair<const char*, Epoch&>("activation_epoch", activation_epoch),
               std::pair<const char*, Epoch&>("exit_epoch", exit_epoch),
               std::pair<const char*, Epoch&>("withdrawable_epoch", withdrawable_epoch));
+#endif
 };
 }

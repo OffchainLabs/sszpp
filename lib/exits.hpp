@@ -34,8 +34,10 @@ struct voluntary_exit_t : ssz_container {
     constexpr bool operator==(const voluntary_exit_t& rhs) const noexcept = default;
 
     SSZ_CONT(epoch, validator_index);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Epoch&>("epoch", epoch),
               std::pair<const char*, ValidatorIndex&>("validator_index", validator_index));
+#endif
 };
 
 struct signed_voluntary_exit_t : ssz_container {
@@ -46,7 +48,9 @@ struct signed_voluntary_exit_t : ssz_container {
     constexpr bool operator==(const signed_voluntary_exit_t& rhs) const noexcept = default;
 
     SSZ_CONT(message, signature);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, voluntary_exit_t&>("message", message),
               std::pair<const char*, signature_t&>("signature", signature));
+#endif
 };
 }

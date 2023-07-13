@@ -21,9 +21,9 @@
  */
 
 #pragma once
-#include <yaml-cpp/exceptions.h>
 #include <iterator>
 #ifdef HAVE_YAML
+#include <yaml-cpp/exceptions.h>
 #include <yaml-cpp/yaml.h>
 #endif
 
@@ -53,9 +53,10 @@ struct is_ssz_object<R> : std::true_type {};
         ssz::deserialize_container(bytes, __VA_ARGS__);                                                            \
     }                                                                                                              \
     void hash_tree_root(std::weakly_incrementable auto result) const { ssz::hash_tree_root(result, __VA_ARGS__); }
+#ifdef HAVE_YAML
 #define YAML_CONT(...) \
     bool yaml_decode(const YAML::Node &node) { return ssz::yaml_decode_container(node, __VA_ARGS__); }
-
+#endif
 constexpr std::uint32_t size_or_placeholder(const ssz_object_fixed_size auto &member) { return ssz::size(member); }
 constexpr std::uint32_t size_or_placeholder(const ssz_object_variable_size auto &member) {
     return BYTES_PER_LENGTH_OFFSET;
@@ -160,6 +161,7 @@ constexpr void deserialize_container(const serialized_range auto &bytes, ssz_obj
     deserialize_variable_size_members(bytes, offsets, members...);
 }
 
+#ifdef HAVE_YAML
 // YAML
 template <typename R>
 struct is_yaml_pair : std::false_type {};
@@ -179,6 +181,7 @@ auto _decode_member = [](const YAML::Node &node, yaml_pair auto pair) {
 bool yaml_decode_container(const YAML::Node &node, yaml_pair auto... pairs) {
     return (_detail::_decode_member(node, pairs), ...);
 }
+#endif
 
 // hash_tree_root of containers
 template <std::weakly_incrementable I, class R>
@@ -209,9 +212,11 @@ void hash_tree_root(std::weakly_incrementable auto result, const ssz_object auto
 }
 }  // namespace ssz
 
+#ifdef HAVE_YAML
 template <class R>
     requires std::derived_from<R, ssz::ssz_container>
 struct YAML::convert<R> {
     static YAML::Node encode(const R &r) { return yaml_encode(r); }
     static bool decode(const YAML::Node &node, R &r) { return r.yaml_decode(node); }
 };
+#endif

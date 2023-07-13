@@ -36,10 +36,12 @@ struct deposit_data_t : ssz_container {
     constexpr bool operator==(const deposit_data_t& rhs) const noexcept = default;
 
     SSZ_CONT(pubkey, withdrawal_credentials, amount, signature);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, bls_pubkey_t&>("pubkey", pubkey),
               std::pair<const char*, Root&>("withdrawal_credentials", withdrawal_credentials),
               std::pair<const char*, uint64_t&>("amount", amount),
               std::pair<const char*, signature_t&>("signature", signature));
+#endif
 };
 
 struct deposit_message_t : ssz_container {
@@ -51,9 +53,11 @@ struct deposit_message_t : ssz_container {
     constexpr bool operator==(const deposit_message_t& rhs) const noexcept = default;
 
     SSZ_CONT(pubkey, withdrawal_credentials, amount);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, bls_pubkey_t&>("pubkey", pubkey),
               std::pair<const char*, Root&>("withdrawal_credentials", withdrawal_credentials),
               std::pair<const char*, uint64_t&>("amount", amount));
+#endif
 };
 
 struct deposit_t : ssz_container {
@@ -63,7 +67,9 @@ struct deposit_t : ssz_container {
     constexpr bool operator==(const deposit_t& rhs) const noexcept = default;
 
     SSZ_CONT(proof, data);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, std::array<Root, DEPOSIT_CONTRACT_TREE_DEPTH + 1>&>("proof", proof),
               std::pair<const char*, deposit_data_t&>("data", data));
+#endif
 };
 }  // namespace ssz

@@ -35,8 +35,10 @@ struct sync_aggregate_t : ssz_container {
     constexpr bool operator==(const sync_aggregate_t& rhs) const noexcept = default;
 
     SSZ_CONT(sync_committee_bits, sync_committee_signature);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, std::bitset<SYNC_COMMITTEE_SIZE>&>("sync_committee_bits", sync_committee_bits),
               std::pair<const char*, signature_t&>("sync_committee_signature", sync_committee_signature));
+#endif
 };
 
 struct sync_committee_t : ssz_container {
@@ -47,7 +49,9 @@ struct sync_committee_t : ssz_container {
     constexpr bool operator==(const sync_committee_t& rhs) const noexcept = default;
 
     SSZ_CONT(pubkeys, aggregate_pubkey);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, decltype(pubkeys)&>("pubkeys", pubkeys),
               std::pair<const char*, bls_pubkey_t&>("aggregate_pubkey", aggregate_pubkey));
+#endif
 };
 }

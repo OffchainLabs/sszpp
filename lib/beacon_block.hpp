@@ -44,9 +44,11 @@ struct eth1_data_t : ssz_container {
     constexpr bool operator==(const eth1_data_t& rhs) const noexcept = default;
 
     SSZ_CONT(deposit_root, deposit_count, block_hash);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Root&>("deposit_root", deposit_root),
               std::pair<const char*, uint64_t&>("deposit_count", deposit_count),
               std::pair<const char*, Root&>("block_hash", block_hash));
+#endif
 };
 
 struct beacon_block_header_t : ssz_container {
@@ -58,11 +60,13 @@ struct beacon_block_header_t : ssz_container {
     constexpr bool operator==(const beacon_block_header_t& rhs) const noexcept = default;
 
     SSZ_CONT(slot, proposer_index, parent_root, state_root, body_root);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Slot&>("slot", slot),
               std::pair<const char*, ValidatorIndex&>("proposer_index", proposer_index),
               std::pair<const char*, Root&>("parent_root", parent_root),
               std::pair<const char*, Root&>("state_root", state_root),
               std::pair<const char*, Root&>("body_root", body_root));
+#endif
 };
 
 struct signed_beacon_block_header_t : ssz_container {
@@ -73,8 +77,10 @@ struct signed_beacon_block_header_t : ssz_container {
     constexpr bool operator==(const signed_beacon_block_header_t& rhs) const noexcept = default;
 
     SSZ_CONT(message, signature);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, beacon_block_header_t&>("message", message),
               std::pair<const char*, signature_t&>("signature", signature));
+#endif
 };
 
 struct attester_slashing_t : ssz_variable_size_container {
@@ -84,8 +90,10 @@ struct attester_slashing_t : ssz_variable_size_container {
     constexpr bool operator==(const attester_slashing_t& rhs) const noexcept = default;
 
     SSZ_CONT(attestation_1, attestation_2);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, indexed_attestation_t&>("attestation_1", attestation_1),
               std::pair<const char*, indexed_attestation_t&>("attestation_2", attestation_2));
+#endif
 };
 
 struct proposer_slashing_t : ssz_container {
@@ -95,8 +103,10 @@ struct proposer_slashing_t : ssz_container {
     constexpr bool operator==(const proposer_slashing_t& rhs) const noexcept = default;
 
     SSZ_CONT(signed_header_1, signed_header_2);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, signed_beacon_block_header_t&>("signed_header_1", signed_header_1),
               std::pair<const char*, signed_beacon_block_header_t&>("signed_header_2", signed_header_2));
+#endif
 };
 
 struct beacon_block_body_t : ssz_variable_size_container {
@@ -117,6 +127,7 @@ struct beacon_block_body_t : ssz_variable_size_container {
 
     SSZ_CONT(randao_reveal, eth1_data, graffiti, proposer_slashings, attester_slashings, attestations, deposits,
              voluntary_exits, sync_aggregate, execution_payload, bls_to_execution_changes);
+#ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, signature_t&>("randao_reveal", randao_reveal),
               std::pair<const char*, eth1_data_t&>("eth1_data", eth1_data),
               std::pair<const char*, Root&>("graffiti", graffiti),
@@ -132,5 +143,6 @@ struct beacon_block_body_t : ssz_variable_size_container {
               std::pair<const char*, execution_payload_t&>("execution_payload", execution_payload),
               std::pair<const char*, ssz::list<signed_bls_to_execution_change_t, MAX_BLS_TO_EXECUTION_CHANGES>&>(
                   "bls_to_execution_changes", bls_to_execution_changes));
+#endif
 };
 }  // namespace ssz

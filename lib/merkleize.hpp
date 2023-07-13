@@ -102,7 +102,7 @@ template <std::size_t N>
 auto zero_hash_array_helper() {
     std::array<chunk_t, N> ret;
     ret[0] = zero_hash;
-    hashtree_init();
+    hashtree_init(NULL);
     for (std::size_t i = 1; i < N; i++) ssz::hash_2_chunks(ret[i], ret[i - 1], ret[i - 1]);
     return ret;
 }
