@@ -95,4 +95,4 @@ std::array<std::byte, 32> htr = ssz::hash_tree_root(object);
 The library comes with all the consensus layer structures used in the `Capella`  fork, you can copy those as templates, or simply wrap your structures around them.
 
 ## License
-Licenced under GPLv3 except for [uint256_t](https://github.com/calccrypto/uint256_t) and [acutest](https://github.com/mity/acutest) (included) that are  licenced MIT. 
+Licenced under the [Apache License version 2.0](https://apache.org/licenses/LICENSE-2.0.txt) except for [uint256_t](https://github.com/calccrypto/uint256_t) and [acutest](https://github.com/mity/acutest) (included) that are  licenced MIT. 
