@@ -25,6 +25,7 @@
 #include <cstdint>
 #include <ranges>
 #include <stdexcept>
+#include <type_traits>
 #include <vector>
 #include <uint256/uint256_t.h>
 
@@ -76,6 +77,12 @@ struct is_ssz_vector<std::vector<T, A>> : std::true_type {
     using item = T;
 };
 
+template <std::ranges::sized_range R>
+    requires(std::ranges::contiguous_range<R> && ssz_object<std::ranges::range_value_t<R>>)
+struct is_ssz_vector<R> : std::true_type {
+    using item = std::ranges::range_value_t<R>;
+};
+
 template <typename C>
 constexpr bool is_ssz_vector_v = is_ssz_vector<C>::value;
 template <typename C>
@@ -96,7 +103,8 @@ concept ssz_fixed_sized_array = ssz_fixed_sized_vector<C> && ssz_array<C>;
 template <typename C>
 concept ssz_basic_type_vector =
     ssz_vector<C> &&
-    (basic_type<typename C::value_type> || (std::is_array_v<C> && basic_type<std::remove_pointer_t<std::decay_t<C>>>));
+    (basic_type<typename C::value_type> || (std::is_array_v<C> && basic_type<std::remove_pointer_t<std::decay_t<C>>>) ||
+     std::ranges::contiguous_range<C> && basic_type<std::remove_cvref_t<std::ranges::range_value_t<C>>>);
 template <typename C>
 concept ssz_basic_type_array = ssz_basic_type_vector<C> && ssz_array<C>;
 }  // namespace ssz

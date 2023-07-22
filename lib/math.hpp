@@ -24,6 +24,11 @@
 #include <concepts>
 
 namespace helpers {
+/**
+ * returns the logarithm of the smallest power of 2 not smaller than the given input
+ *
+ * (0,0), (1,0), (2,1), (3,2), (4,2), (5,3),...
+ */
 constexpr auto log2ceil(std::unsigned_integral auto n) {
     return n ? CHAR_BIT * sizeof(n) - std::countl_zero(n - 1) : 0;
 }

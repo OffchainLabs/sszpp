@@ -72,6 +72,23 @@ constexpr auto bytelist_from_str(const std::string_view &str, std::ranges::sized
         return _detail::hex_to_byte(chunk[0]) << 4 | _detail::hex_to_byte(chunk[1]);
     });
 }
+
+constexpr auto to_string(const serialized_range auto &m_arr) {
+    static const char characters[] = "0123456789abcdef";
+    std::string ret(m_arr.size() * 2 + 2, 0);
+
+    auto buf = const_cast<char *>(ret.data());
+
+    *buf++ = '0';
+    *buf++ = 'x';
+
+    for (const auto &oneInputByte : m_arr) {
+        *buf++ = characters[std::to_integer<int>(oneInputByte >> 4)];
+        *buf++ = characters[std::to_integer<int>(oneInputByte & std::byte{0x0F})];
+    }
+    return ret;
+};
+
 }  // namespace ssz
 #ifdef HAVE_YAML
 // YAML encoding/decoding to hextrings for bytevectors.

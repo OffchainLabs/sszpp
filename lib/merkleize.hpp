@@ -24,6 +24,7 @@
 #include <algorithm>  //copy
 #include <iterator>
 #include <type_traits>
+#include <future>
 
 #include "basic_types.hpp"
 #include "lists.hpp"
@@ -288,13 +289,28 @@ auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t li
 template <ssz_vector R>
     requires(!std::is_same_v<Root, std::remove_cvref_t<std::ranges::range_value_t<R>>> && !ssz_basic_type_vector<R>)
 auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t limit = 0) {
-    std::vector<std::byte> chunks(std::ranges::size(r) * BYTES_PER_CHUNK);
-    auto offset = std::begin(chunks);
-    std::ranges::for_each(r, [&offset](auto& elem) {
-        hash_tree_root(offset, elem);
-        std::advance(offset, BYTES_PER_CHUNK);
-    });
-    return hash_tree_root(result, chunks, limit);
+    auto rsize = std::ranges::size(r);
+    if ((rsize < (1ul << 15))) {
+        std::vector<std::byte> chunks(std::ranges::size(r) * BYTES_PER_CHUNK);
+        auto offset = std::begin(chunks);
+        std::ranges::for_each(r, [&offset](auto& elem) {
+            hash_tree_root(offset, elem);
+            std::advance(offset, BYTES_PER_CHUNK);
+        });
+        return hash_tree_root(result, chunks, limit);
+    }
+    auto half_size = std::bit_ceil(rsize) / 2;
+    auto first = std::ranges::subrange(std::begin(r), std::begin(r) + half_size);
+    auto last = std::ranges::subrange(std::begin(r) + half_size, std::end(r));
+    std::vector<std::byte> two_blocks(2 * BYTES_PER_CHUNK);  // has to be on the heap
+    auto future = std::async(std::launch::async,
+                             [&]() { hash_tree_root(std::begin(two_blocks) + BYTES_PER_CHUNK, last, half_size); });
+    hash_tree_root(std::begin(two_blocks), first, half_size);
+    future.get();
+    hash(result, two_blocks, 1);
+    for (auto i = helpers::log2ceil(half_size) + 1; i < helpers::log2ceil(limit); i++) {
+        hash_2_chunks(result, result, zero_hash_array[i]);
+    }
 }
 
 // hash_tree_root of ssz::list of basic type

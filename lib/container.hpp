@@ -51,7 +51,7 @@ struct is_ssz_object<R> : std::true_type {};
     constexpr void deserialize(const std::ranges::sized_range auto &bytes) {                                       \
         ssz::deserialize_container(bytes, __VA_ARGS__);                                                            \
     }                                                                                                              \
-    void hash_tree_root(std::weakly_incrementable auto result) const { ssz::hash_tree_root(result, __VA_ARGS__); }
+    void hash_tree_root(std::weakly_incrementable auto result) const { ssz::_container_hash(result, __VA_ARGS__); }
 #ifdef HAVE_YAML
 #define YAML_CONT(...) \
     bool yaml_decode(const YAML::Node &node) { return ssz::yaml_decode_container(node, __VA_ARGS__); }
@@ -197,13 +197,13 @@ auto hash_tree_root(const R &r) {
     return ret;
 }
 
-void hash_tree_root(std::weakly_incrementable auto result, const ssz_object auto &...members)
+void _container_hash(std::weakly_incrementable auto result, const ssz_object auto &...members)
     requires std::is_same_v<decltype(*result), std::byte &>
 {
     std::vector<std::byte> ret(sizeof...(members) * BYTES_PER_CHUNK);
     auto to_hash = std::begin(ret);
     auto htr_member = [&](const auto &member) {
-        ssz::hash_tree_root(to_hash, member);
+        hash_tree_root(to_hash, member);
         to_hash += BYTES_PER_CHUNK;
     };
     (htr_member(members), ...);

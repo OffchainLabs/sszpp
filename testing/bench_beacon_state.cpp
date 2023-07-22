@@ -24,6 +24,7 @@
 #include <iostream>
 #include <chrono>
 
+#include "bytelists.hpp"
 #include "container.hpp"
 #include "ssz++.hpp"
 #include "beacon_state.hpp"
@@ -51,7 +52,8 @@ int main() {
     const std::chrono::duration<double> elapsed_hashing = end_hashing - start_hashing;
 
     std::cout << "Deserializaton: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_deserialize)
-              << "\nHashing: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_hashing) << std::endl;
+              << "\nHashing: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_hashing)
+              << "\nRoot: " << ssz::to_string(htr) << std::endl;
 
     return 0;
 }
