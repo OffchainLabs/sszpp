@@ -36,9 +36,9 @@ Deserializaton: 28ms
 Hashing: 62ms
 Root: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
-Compared with Prysm (using ADX on BLST and GoHashtree for hashing)
+Compared with Prysm using ADX on BLST and fully parallelized GoHashtree for hashing
 ```
-Deserialize Duration: 95.154324ms, Hashing Duration: 490.88459ms HTR: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
+Deserialize Duration: 100.248102ms, Hashing Duration: 139.618937ms HTR: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
 
 These on a Ryzen 9 5900HX (courtesy of E. Del Fante)
