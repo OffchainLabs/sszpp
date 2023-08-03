@@ -249,14 +249,34 @@ void _htr_big_endian_basic_list(auto result, const auto& r, size_t limit = 0) {
     _htr_little_endian_basic_list(result, serialized, limit);
 }
 template <std::ranges::sized_range R>
-auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0)
+void hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0)
     requires std::is_same_v<decltype(*result), std::byte&> &&
              basic_type<std::ranges::range_value_t<R>> && std::ranges::contiguous_range<R>
 {
-    if constexpr (std::endian::native == std::endian::little) {
-        _htr_little_endian_basic_list(result, r, limit);
-    } else {
-        _htr_big_endian_basic_list(result, r, limit);
+    auto rsize = std::ranges::size(r);
+    if (cpu_count == 0) cpu_count = std::thread::hardware_concurrency();
+    if (cpu_count < 2 || rsize < 4 * BYTES_PER_CHUNK) {
+        if constexpr (std::endian::native == std::endian::little) {
+            return _htr_little_endian_basic_list(result, r, limit);
+        } else {
+            return _htr_big_endian_basic_list(result, r, limit);
+        }
+    }
+    // For some reason this drastically underperforms if we make the following lines (which are the same in all
+    // vectors) templated or a helper
+    auto half_size = std::bit_ceil(rsize) / 2;
+    auto chunk_size = (half_size * sizeof(std::ranges::range_value_t<R>) + BYTES_PER_CHUNK - 1) / BYTES_PER_CHUNK;
+    auto first = std::ranges::subrange(std::begin(r), std::begin(r) + half_size);
+    auto last = std::ranges::subrange(std::begin(r) + half_size, std::end(r));
+    std::vector<std::byte> two_blocks(2 * BYTES_PER_CHUNK);  // has to be on the heap
+    auto future = std::async(std::launch::async, [&]() {
+        hash_tree_root(std::begin(two_blocks) + BYTES_PER_CHUNK, last, cpu_count / 2, chunk_size);
+    });
+    hash_tree_root(std::begin(two_blocks), first, cpu_count / 2, chunk_size);
+    future.get();
+    hash(result, two_blocks, 1);
+    for (auto i = helpers::log2ceil(chunk_size) + 1; i < helpers::log2ceil(limit); i++) {
+        hash_2_chunks(result, result, zero_hash_array[i]);
     }
 }
 template <std::ranges::sized_range R>
@@ -277,11 +297,28 @@ auto _htr_array_of_array_little_endian(auto result, const auto& r, size_t limit 
 
 template <std::ranges::sized_range R>
     requires std::is_same_v<Root, std::remove_cvref_t<std::ranges::range_value_t<R>>>
-auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
-    if constexpr (std::endian::native == std::endian::little) {
-        _htr_array_of_array_little_endian(result, r, limit);
-    } else {
-        _htr_big_endian_basic_list(result, r, limit);
+void hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
+    auto rsize = std::ranges::size(r);
+    if (cpu_count == 0) cpu_count = std::thread::hardware_concurrency();
+    if (cpu_count < 2 || rsize < 4) {
+        if constexpr (std::endian::native == std::endian::little) {
+            return _htr_array_of_array_little_endian(result, r, limit);
+        } else {
+            return _htr_big_endian_basic_list(result, r, limit);
+        }
+    }
+    auto half_size = std::bit_ceil(rsize) / 2;
+    auto first = std::ranges::subrange(std::begin(r), std::begin(r) + half_size);
+    auto last = std::ranges::subrange(std::begin(r) + half_size, std::end(r));
+    std::vector<std::byte> two_blocks(2 * BYTES_PER_CHUNK);  // has to be on the heap
+    auto future = std::async(std::launch::async, [&]() {
+        hash_tree_root(std::begin(two_blocks) + BYTES_PER_CHUNK, last, cpu_count / 2, half_size);
+    });
+    hash_tree_root(std::begin(two_blocks), first, cpu_count / 2, half_size);
+    future.get();
+    hash(result, two_blocks, 1);
+    for (auto i = helpers::log2ceil(half_size) + 1; i < helpers::log2ceil(limit); i++) {
+        hash_2_chunks(result, result, zero_hash_array[i]);
     }
 }
 
@@ -314,6 +351,9 @@ auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cp
         hash_2_chunks(result, result, zero_hash_array[i]);
     }
 }
+
+template <typename T, std::ranges::sized_range R>
+constexpr inline void _paralell_tail(size_t rsize, T result, const R& r, size_t cpu_count, size_t limit) noexcept {}
 
 // hash_tree_root of ssz::list of basic type
 template <basic_type T, size_t N>
