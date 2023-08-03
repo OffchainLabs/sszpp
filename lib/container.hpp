@@ -51,7 +51,9 @@ struct is_ssz_object<R> : std::true_type {};
     constexpr void deserialize(const std::ranges::sized_range auto &bytes) {                                       \
         ssz::deserialize_container(bytes, __VA_ARGS__);                                                            \
     }                                                                                                              \
-    void hash_tree_root(std::weakly_incrementable auto result) const { ssz::_container_hash(result, __VA_ARGS__); }
+    void hash_tree_root(std::weakly_incrementable auto result, size_t cpu_count = 0) const {                       \
+        ssz::_container_hash(result, cpu_count, __VA_ARGS__);                                                      \
+    }
 #ifdef HAVE_YAML
 #define YAML_CONT(...) \
     bool yaml_decode(const YAML::Node &node) { return ssz::yaml_decode_container(node, __VA_ARGS__); }
@@ -185,29 +187,29 @@ bool yaml_decode_container(const YAML::Node &node, yaml_pair auto... pairs) {
 // hash_tree_root of containers
 template <std::weakly_incrementable I, class R>
     requires std::derived_from<R, ssz::ssz_container>
-void hash_tree_root(I result, const R &r) {
-    r.hash_tree_root(result);
+void hash_tree_root(I result, const R &r, size_t cpu_count = 0) {
+    r.hash_tree_root(result, cpu_count);
 }
 
 template <class R>
     requires std::derived_from<R, ssz::ssz_container>
-auto hash_tree_root(const R &r) {
+auto hash_tree_root(const R &r, size_t cpu_count = 0) {
     chunk_t ret{};
-    r.hash_tree_root(std::begin(ret));
+    r.hash_tree_root(std::begin(ret), cpu_count);
     return ret;
 }
 
-void _container_hash(std::weakly_incrementable auto result, const ssz_object auto &...members)
+void _container_hash(std::weakly_incrementable auto result, size_t cpu_count, const ssz_object auto &...members)
     requires std::is_same_v<decltype(*result), std::byte &>
 {
     std::vector<std::byte> ret(sizeof...(members) * BYTES_PER_CHUNK);
     auto to_hash = std::begin(ret);
     auto htr_member = [&](const auto &member) {
-        hash_tree_root(to_hash, member);
+        hash_tree_root(to_hash, member, cpu_count);
         to_hash += BYTES_PER_CHUNK;
     };
     (htr_member(members), ...);
-    hash_tree_root(result, ret);
+    hash_tree_root(result, ret, cpu_count);
 }
 }  // namespace ssz
 
