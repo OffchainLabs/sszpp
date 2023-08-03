@@ -33,11 +33,12 @@ These are results on a Dell XPS 9320
 ```
 $ ./bench_beacon_state
 Deserializaton: 28ms
-Hashing: 377ms
+Hashing: 62ms
+Root: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
 Compared with Prysm (using ADX on BLST and GoHashtree for hashing)
 ```
-Deserialize Duration: 196.692907ms, Hashing Duration: 483.900149ms 
+Deserialize Duration: 95.154324ms, Hashing Duration: 490.88459ms HTR: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
 
 These on a Ryzen 9 5900HX (courtesy of E. Del Fante)
