@@ -3,7 +3,7 @@ A fast SSZ library focused on minimal memory allocations and fast hashing.
 
 It is focused on templated polymorphism, with no dynamic dispatching and performing the minimal number of memory copies. 
 
-**WARNING** This project is in very early implementation status, it is surely filled with bugs and security issue, it should not be used in production code. 
+**WARNING** This project is in very early implementation status, it is surely filled with bugs and security issues, it should not be used in production code.
 ## Requirements
 - A compiler supporting C++23, tested only with GCC 13.1 (clang will fail due to lack of C++20 concepts)
 - [Hashtree](https://github.com/prysmaticlabs/hashtree) is used for hashing.
@@ -43,8 +43,8 @@ Deserialize Duration: 100.248102ms, Hashing Duration: 139.618937ms HTR: 0x5422c2
 These are on a Ryzen 9 7950X
 ```
 Deserialization: 27ms
- Hashing: 23ms
- Root: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
+Hashing: 23ms
+Root: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
 
 These on a Ryzen 9 5900HX without any paralellization (courtesy of E. Del Fante)
