@@ -40,8 +40,14 @@ Compared with Prysm using ADX on BLST and fully parallelized GoHashtree for hash
 ```
 Deserialize Duration: 100.248102ms, Hashing Duration: 139.618937ms HTR: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
+These are on a Ryzen 9 7950X
+```
+Deserialization: 27ms
+ Hashing: 23ms
+ Root: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
+```
 
-These on a Ryzen 9 5900HX (courtesy of E. Del Fante)
+These on a Ryzen 9 5900HX without any paralellization (courtesy of E. Del Fante)
 ```
 Deserialization: 35ms
 Hashing: 349ms
@@ -93,8 +99,10 @@ std::vector<std::byte> vec = ssz::serialize(object);
 
 To get the hash tree root you would try
 ```c++
-std::array<std::byte, 32> htr = ssz::hash_tree_root(object);
+std::array<std::byte, 32> htr = ssz::hash_tree_root(object, cpu_count);
 ```
+where `cpu_count` is the number of threads that you want to use. Using `0` (the default) will use all available cores. 
+
 The library comes with all the consensus layer structures used in the `Capella`  fork, you can copy those as templates, or simply wrap your structures around them.
 
 ## License
