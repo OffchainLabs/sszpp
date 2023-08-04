@@ -51,7 +51,7 @@ int main() {
     const auto end_hashing = std::chrono::high_resolution_clock::now();
     const std::chrono::duration<double> elapsed_hashing = end_hashing - start_hashing;
 
-    std::cout << "Deserializaton: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_deserialize)
+    std::cout << "Deserialization: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_deserialize)
               << "\nHashing: " << std::chrono::duration_cast<std::chrono::milliseconds>(elapsed_hashing)
               << "\nRoot: " << ssz::to_string(htr) << std::endl;
 
