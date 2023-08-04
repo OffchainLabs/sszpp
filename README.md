@@ -32,7 +32,7 @@ $ make
 These are results on a Dell XPS 9320
 ```
 $ ./bench_beacon_state
-Deserializaton: 28ms
+Deserialization: 28ms
 Hashing: 62ms
 Root: 0x5422c2fe46f4fa5719f91b353371428125f04ba684264c4bd2b25967258e66d9
 ```
@@ -43,7 +43,7 @@ Deserialize Duration: 100.248102ms, Hashing Duration: 139.618937ms HTR: 0x5422c2
 
 These on a Ryzen 9 5900HX (courtesy of E. Del Fante)
 ```
-Deserializaton: 35ms
+Deserialization: 35ms
 Hashing: 349ms
 ```
 Compared to native Teku on the same computer deserializing at `130ms` and cold hashing at `1 500ms`. 
