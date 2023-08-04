@@ -40,17 +40,12 @@ constexpr chunk_t zero_hash{};
 /**
  * \brief wrapper to hashtree's hash function
  */
-auto hash(std::weakly_incrementable auto output, const std::weakly_incrementable auto& input, std::uint64_t count)
-    requires(std::is_same_v<decltype(*output), std::byte&> &&
-             std::is_same_v<std::remove_cvref_t<decltype(*input)>, std::byte>)
-{
+auto hash(ssz_iterator auto output, const ssz_iterator auto& input, std::uint64_t count) {
     hashtree_hash(reinterpret_cast<unsigned char*>(&*output), reinterpret_cast<const unsigned char*>(&*input), count);
     return output + count * BYTES_PER_CHUNK;
 }
 
-auto hash(std::weakly_incrementable auto output, const serialized_range auto& input, uint64_t count = 0)
-    requires std::is_same_v<decltype(*output), std::byte&>
-{
+auto hash(ssz_iterator auto output, const serialized_range auto& input, uint64_t count = 0) {
     if (count == 0) count = std::ranges::size(input) / 2 / BYTES_PER_CHUNK;
     return hash(output, std::begin(input), count);
 }
@@ -65,22 +60,14 @@ auto hash(serialized_range auto& output, const serialized_range auto& input, uin
  *
  * does not check bounds, undefined behavior if the two ranges do not have at least 32 bytes
  */
-auto hash_2_chunks(std::weakly_incrementable auto output, const std::weakly_incrementable auto& first,
-                   const std::weakly_incrementable auto& second)
-    requires(std::is_same_v<std::remove_cvref_t<decltype(*output)>, std::byte> &&
-             std::is_same_v<std::remove_cvref_t<decltype(*first)>, std::byte> &&
-             std::is_same_v<std::remove_cvref_t<decltype(*second)>, std::byte>)
-{
+auto hash_2_chunks(ssz_iterator auto output, const ssz_iterator auto& first, const ssz_iterator auto& second) {
     std::array<std::byte, 2 * BYTES_PER_CHUNK> sum;
     std::ranges::copy(first, first + BYTES_PER_CHUNK, std::begin(sum));
     std::ranges::copy(second, second + BYTES_PER_CHUNK, std::begin(sum) + BYTES_PER_CHUNK);
     return hash(output, sum, 1);
 }
 
-auto hash_2_chunks(std::weakly_incrementable auto output, const serialized_range auto& first,
-                   const serialized_range auto& second)
-    requires(std::is_same_v<std::remove_cvref_t<decltype(*output)>, std::byte>)
-{
+auto hash_2_chunks(ssz_iterator auto output, const serialized_range auto& first, const serialized_range auto& second) {
     return hash_2_chunks(output, std::begin(first), std::begin(second));
 }
 
@@ -89,11 +76,7 @@ auto hash_2_chunks(serialized_range auto& output, const serialized_range auto& f
     return hash_2_chunks(std::begin(output), std::begin(first), std::begin(second));
 }
 
-auto hash_2_chunks(std::weakly_incrementable auto output, const std::weakly_incrementable auto& first,
-                   const serialized_range auto& second)
-    requires(std::is_same_v<std::remove_cvref_t<decltype(*output)>, std::byte> &&
-             std::is_same_v<std::remove_cvref_t<decltype(*first)>, std::byte>)
-{
+auto hash_2_chunks(ssz_iterator auto output, const ssz_iterator auto& first, const serialized_range auto& second) {
     return hash_2_chunks(output, first, std::begin(second));
 }
 
@@ -133,10 +116,7 @@ auto compute_hashtree_size(std::size_t chunk_count, std::size_t depth) {
  *
  * Undefined behaviour if one chunk or less is sent.
  */
-auto hash_first_layer(std::weakly_incrementable auto& hash_tree, const std::weakly_incrementable auto& chunks,
-                      size_t byte_length)
-    requires std::is_same_v<std::remove_cvref_t<decltype(*chunks)>, std::byte>
-{
+auto hash_first_layer(ssz_iterator auto& hash_tree, const ssz_iterator auto& chunks, size_t byte_length) {
     auto chunk_count = (byte_length + BYTES_PER_CHUNK - 1) / BYTES_PER_CHUNK;
     // if there are left over bytes we can't hash in-place
     auto left_over_bytes = (byte_length % BYTES_PER_CHUNK) != 0;
@@ -166,11 +146,8 @@ auto hash_first_layer(std::weakly_incrementable auto& hash_tree, const std::weak
  * that is, this function will add the extra zero bytes to pad the last chunk if necessary.
  * \param[in] limit the exponential of the tree depth
  */
-void sparse_hash_tree(std::weakly_incrementable auto hash_tree, const std::weakly_incrementable auto& chunks,
-                      size_t byte_length, std::size_t depth)
-    requires(std::is_same_v<std::remove_cvref_t<decltype(*hash_tree)>, std::byte> &&
-             std::is_same_v<std::remove_cvref_t<decltype(*chunks)>, std::byte>)
-{
+void sparse_hash_tree(ssz_iterator auto hash_tree, const ssz_iterator auto& chunks, size_t byte_length,
+                      std::size_t depth) {
     if (depth == 0) {
         std::ranges::copy_n(chunks, byte_length, hash_tree);
         return;
@@ -195,9 +172,7 @@ void sparse_hash_tree(std::weakly_incrementable auto hash_tree, const std::weakl
  * \param[in] byte_length, the number of bytes to hash (the size in bytes of the memory buffer pointed to by chunks).
  * \param[in] limit the exponential of the tree depth.
  */
-auto sparse_hash_tree(const std::weakly_incrementable auto& chunks, std::size_t byte_length, std::size_t limit = 0)
-    requires std::is_same_v<std::remove_cvref_t<decltype(*chunks)>, std::byte>
-{
+auto sparse_hash_tree(const ssz_iterator auto& chunks, std::size_t byte_length, std::size_t limit = 0) {
     auto chunk_count = (byte_length + ssz::BYTES_PER_CHUNK - 1) / ssz::BYTES_PER_CHUNK;
     auto depth = (limit == 0) ? helpers::log2ceil(chunk_count) : helpers::log2ceil(limit);
     if (chunk_count == 0) {
@@ -220,18 +195,14 @@ auto sparse_hash_tree(const ssz_basic_type_vector auto& chunks, std::size_t limi
 }
 
 // helper to mix in length in place
-auto mix_in_length(std::weakly_incrementable auto output, const std::weakly_incrementable auto& hash,
-                   std::uint64_t length)
-    requires(std::is_same_v<std::remove_cvref_t<decltype(*output)>, std::byte> &&
-             std::is_same_v<std::remove_cvref_t<decltype(*hash)>, std::byte>)
-{
+auto mix_in_length(ssz_iterator auto output, const ssz_iterator auto& hash, std::uint64_t length) {
     chunk_t serialized_length{};
     ssz::serialize(std::begin(serialized_length), length);
     hash_2_chunks(output, hash, serialized_length);
 }
 
 // hash_tree_root of basic objects
-auto hash_tree_root(std::weakly_incrementable auto output, ssz::basic_type auto n, size_t = 0) { serialize(output, n); }
+auto hash_tree_root(ssz_iterator auto output, ssz::basic_type auto n, size_t = 0) { serialize(output, n); }
 auto hash_tree_root(ssz::basic_type auto n, size_t = 0) {
     chunk_t ret{};
     serialize(std::begin(ret), n);
@@ -248,11 +219,8 @@ void _htr_big_endian_basic_list(auto result, const auto& r, size_t limit = 0) {
     auto serialized = serialize(r);
     _htr_little_endian_basic_list(result, serialized, limit);
 }
-template <std::ranges::sized_range R>
-void hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0)
-    requires std::is_same_v<decltype(*result), std::byte&> &&
-             basic_type<std::ranges::range_value_t<R>> && std::ranges::contiguous_range<R>
-{
+template <ssz_iterator I, ssz_basic_type_vector R>
+void hash_tree_root(I result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
     auto rsize = std::ranges::size(r);
     if (cpu_count == 0) cpu_count = std::thread::hardware_concurrency();
     if (cpu_count < 2 || rsize < 4 * BYTES_PER_CHUNK) {
@@ -279,14 +247,6 @@ void hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cp
         hash_2_chunks(result, result, zero_hash_array[i]);
     }
 }
-template <std::ranges::sized_range R>
-auto hash_tree_root(const R& r, size_t cpu_count = 0, size_t limit = 0)
-    requires basic_type<std::ranges::range_value_t<R>> && std::ranges::contiguous_range<R>
-{
-    chunk_t ret{};
-    hash_tree_root(std::begin(ret), r, cpu_count, limit);
-    return ret;
-}
 
 // hash_tree_root of array/list of roots, avoid an extra copy and allocation
 auto _htr_array_of_array_little_endian(auto result, const auto& r, size_t limit = 0) {
@@ -297,7 +257,7 @@ auto _htr_array_of_array_little_endian(auto result, const auto& r, size_t limit 
 
 template <std::ranges::sized_range R>
     requires std::is_same_v<Root, std::remove_cvref_t<std::ranges::range_value_t<R>>>
-void hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
+void hash_tree_root(ssz_iterator auto result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
     auto rsize = std::ranges::size(r);
     if (cpu_count == 0) cpu_count = std::thread::hardware_concurrency();
     if (cpu_count < 2 || rsize < 4) {
@@ -323,9 +283,9 @@ void hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cp
 }
 
 // helper hash_tree_root of non-basic, 32 bytes, or boolean vectors
-template <ssz_vector R>
+template <ssz_iterator I, ssz_vector R>
     requires(!std::is_same_v<Root, std::remove_cvref_t<std::ranges::range_value_t<R>>> && !ssz_basic_type_vector<R>)
-auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
+auto hash_tree_root(I result, const R& r, size_t cpu_count = 0, size_t limit = 0) {
     auto rsize = std::ranges::size(r);
     if (cpu_count == 0) cpu_count = std::thread::hardware_concurrency();
     if (cpu_count < 2 || rsize < 4) {
@@ -352,48 +312,27 @@ auto hash_tree_root(std::weakly_incrementable auto result, const R& r, size_t cp
     }
 }
 
-template <typename T, std::ranges::sized_range R>
-constexpr inline void _paralell_tail(size_t rsize, T result, const R& r, size_t cpu_count, size_t limit) noexcept {}
+auto hash_tree_root(const ssz_vector auto& r, size_t cpu_count = 0, size_t limit = 0) {
+    chunk_t ret{};
+    hash_tree_root(std::begin(ret), r, cpu_count, limit);
+    return ret;
+}
 
-// hash_tree_root of ssz::list of basic type
+// hash_tree_root of ssz::list
 template <basic_type T, size_t N>
-auto hash_tree_root(std::weakly_incrementable auto result, const ssz::list<T, N>& r, size_t cpu_count = 0) {
+auto hash_tree_root(ssz_iterator auto result, const ssz::list<T, N>& r, size_t cpu_count = 0) {
     size_t limit = (N * sizeof(T) + BYTES_PER_CHUNK - 1) / BYTES_PER_CHUNK;
     auto hash = hash_tree_root(r.data(), cpu_count, limit);
     mix_in_length(result, std::begin(hash), r.size());
 }
-
-template <ssz_object T>
-    requires(!basic_type<T>)
-auto hash_tree_root(const std::vector<T>& r, size_t cpu_count = 0, size_t limit = 0) {
-    chunk_t hash{};
-    hash_tree_root(std::begin(hash), r, cpu_count, limit);
-    return hash;
-}
-
 template <ssz_object T, size_t N>
     requires(!basic_type<T>)
-auto hash_tree_root(std::weakly_incrementable auto result, const ssz::list<T, N>& r, size_t cpu_count = 0) {
+auto hash_tree_root(ssz_iterator auto result, const ssz::list<T, N>& r, size_t cpu_count = 0) {
     auto hash = hash_tree_root(r.data(), cpu_count, N);
     return mix_in_length(result, std::begin(hash), r.size());
 }
-
-template <ssz_object T, size_t N>
-    requires(!basic_type<T>)
-auto hash_tree_root(const ssz::list<T, N>& r, size_t cpu_count = 0) {
-    chunk_t hash{};
-    hash_tree_root(std::begin(hash), r, cpu_count);
-    return hash;
-}
-
-/**
- *  \brief hash_tree_root of ssz::list<bool, N>
- *
- */
 template <size_t N>
-auto hash_tree_root(std::weakly_incrementable auto result, const ssz::list<bool, N>& r, size_t cpu_count = 1)
-    requires std::is_same_v<decltype(*result), std::byte&>
-{
+auto hash_tree_root(ssz_iterator auto result, const ssz::list<bool, N>& r, size_t cpu_count = 1) {
     auto bytes = serialize(r);
     // remove the last bit on the list
     auto& last = bytes.back();
@@ -408,13 +347,9 @@ auto hash_tree_root(std::weakly_incrementable auto result, const ssz::list<bool,
     mix_in_length(result, std::begin(hash), r.size());
 }
 
-/**
- * \brief hash_tree_root of std::bitset<N>
- */
+// hash_tree_root of std::bitset<N>
 template <size_t N>
-auto hash_tree_root(std::weakly_incrementable auto result, const std::bitset<N>& r, size_t cpu_count = 1)
-    requires std::is_same_v<std::remove_cvref_t<decltype(*result)>, std::byte>
-{
+auto hash_tree_root(ssz_iterator auto result, const std::bitset<N>& r, size_t cpu_count = 1) {
     auto bytes = serialize(r);
     size_t limit = (N + CHAR_BIT * BYTES_PER_CHUNK - 1) / (CHAR_BIT * BYTES_PER_CHUNK);
     hash_tree_root(result, bytes, cpu_count, limit);

@@ -92,8 +92,7 @@ constexpr auto to_string(const serialized_range auto &m_arr) {
 }  // namespace ssz
 #ifdef HAVE_YAML
 // YAML encoding/decoding to hextrings for bytevectors.
-template <std::ranges::sized_range R>
-    requires std::is_same_v<std::ranges::range_value_t<R>, std::byte>
+template <ssz::serialized_range R>
 struct YAML::convert<R> {
     static bool decode(const YAML::Node &node, R &r) {
         std::string hexstring;

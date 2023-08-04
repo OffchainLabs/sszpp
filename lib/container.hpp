@@ -20,12 +20,12 @@
  */
 
 #pragma once
-#include <iterator>
 #ifdef HAVE_YAML
 #include <yaml-cpp/exceptions.h>
 #include <yaml-cpp/yaml.h>
 #endif
 
+#include "concepts.hpp"
 #include "lists.hpp"
 #include "merkleize.hpp"
 
@@ -45,14 +45,14 @@ template <class R>
 struct is_ssz_object<R> : std::true_type {};
 
 // Serialization
-#define SSZ_CONT(...)                                                                                              \
-    constexpr std::size_t ssz_size() const noexcept { return ssz::compute_total_length(__VA_ARGS__); }             \
-    constexpr void serialize(std::weakly_incrementable auto result) const { ssz::serialize(result, __VA_ARGS__); } \
-    constexpr void deserialize(const std::ranges::sized_range auto &bytes) {                                       \
-        ssz::deserialize_container(bytes, __VA_ARGS__);                                                            \
-    }                                                                                                              \
-    void hash_tree_root(std::weakly_incrementable auto result, size_t cpu_count = 0) const {                       \
-        ssz::_container_hash(result, cpu_count, __VA_ARGS__);                                                      \
+#define SSZ_CONT(...)                                                                                      \
+    constexpr std::size_t ssz_size() const noexcept { return ssz::compute_total_length(__VA_ARGS__); }     \
+    constexpr void serialize(ssz::ssz_iterator auto result) const { ssz::serialize(result, __VA_ARGS__); } \
+    constexpr void deserialize(const std::ranges::sized_range auto &bytes) {                               \
+        ssz::deserialize_container(bytes, __VA_ARGS__);                                                    \
+    }                                                                                                      \
+    void hash_tree_root(ssz::ssz_iterator auto result, size_t cpu_count = 0) const {                       \
+        ssz::_container_hash(result, cpu_count, __VA_ARGS__);                                              \
     }
 #ifdef HAVE_YAML
 #define YAML_CONT(...) \
@@ -76,9 +76,7 @@ constexpr std::uint32_t compute_total_length(const ssz_object auto &...members) 
     return (... + size_plus_placeholder(members));
 }
 
-constexpr void serialize(std::weakly_incrementable auto result, const ssz_object auto &...members)
-    requires std::is_same_v<decltype(*result), std::byte &>
-{
+constexpr void serialize(ssz_iterator auto result, const ssz_object auto &...members) {
     auto fsize = compute_fixed_length(members...);
     auto variable = result + fsize;
     auto begin = result;
@@ -106,7 +104,7 @@ constexpr auto serialize(const R &container) {
 
 template <class R>
     requires std::derived_from<R, ssz_container>
-constexpr void serialize(std::weakly_incrementable auto result, const R &container) {
+constexpr void serialize(ssz_iterator auto result, const R &container) {
     return container.serialize(result);
 }
 
@@ -185,7 +183,7 @@ bool yaml_decode_container(const YAML::Node &node, yaml_pair auto... pairs) {
 #endif
 
 // hash_tree_root of containers
-template <std::weakly_incrementable I, class R>
+template <ssz_iterator I, class R>
     requires std::derived_from<R, ssz::ssz_container>
 void hash_tree_root(I result, const R &r, size_t cpu_count = 0) {
     r.hash_tree_root(result, cpu_count);
@@ -199,9 +197,7 @@ auto hash_tree_root(const R &r, size_t cpu_count = 0) {
     return ret;
 }
 
-void _container_hash(std::weakly_incrementable auto result, size_t cpu_count, const ssz_object auto &...members)
-    requires std::is_same_v<decltype(*result), std::byte &>
-{
+void _container_hash(ssz_iterator auto result, size_t cpu_count, const ssz_object auto &...members) {
     std::vector<std::byte> ret(sizeof...(members) * BYTES_PER_CHUNK);
     auto to_hash = std::begin(ret);
     auto htr_member = [&](const auto &member) {

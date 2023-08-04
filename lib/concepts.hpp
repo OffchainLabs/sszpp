@@ -46,6 +46,9 @@ struct is_ssz_object<R> : is_ssz_object<std::ranges::range_value_t<R>> {};
 template <std::size_t N>
 struct is_ssz_object<std::bitset<N>> : std::true_type {};
 
+template <class I>
+concept ssz_iterator = std::weakly_incrementable<I> && std::is_same_v<std::iter_value_t<I>, std::byte>;
+
 template <class R>
 concept serialized_range = std::ranges::input_range<R> && std::ranges::sized_range<R> &&
                            std::ranges::contiguous_range<R> && std::is_same_v<std::ranges::range_value_t<R>, std::byte>;
