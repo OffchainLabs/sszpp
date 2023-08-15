@@ -147,4 +147,39 @@ struct beacon_block_body_t : ssz_variable_size_container {
                   "bls_to_execution_changes", bls_to_execution_changes));
 #endif
 };
+
+struct beacon_block_t : ssz_variable_size_container {
+    Slot slot;
+    ValidatorIndex proposer_index;
+    Root parent_root, state_root;
+    beacon_block_body_t body;
+
+    constexpr auto operator<=>(const beacon_block_t& rhs) const noexcept = default;
+    constexpr bool operator==(const beacon_block_t& rhs) const noexcept = default;
+
+    SSZ_CONT(slot, proposer_index, parent_root, state_root, body);
+
+#ifdef HAVE_YAML
+    YAML_CONT(std::pair<const char*, Slot&>("slot", slot),
+              std::pair<const char*, ValidatorIndex&>("proposer_index", proposer_index),
+              std::pair<const char*, Root&>("parent_root", parent_root),
+              std::pair<const char*, Root&>("state_root", state_root),
+              std::pair<const char*, beacon_block_body_t&>("body", body));
+#endif
+};
+
+struct signed_beacon_block_t : ssz_variable_size_container {
+    beacon_block_t message;
+    signature_t signature;
+
+    constexpr auto operator<=>(const signed_beacon_block_t& rhs) const noexcept = default;
+    constexpr bool operator==(const signed_beacon_block_t& rhs) const noexcept = default;
+
+    SSZ_CONT(message, signature);
+#ifdef HAVE_YAML
+    YAML_CONT(std::pair<const char*, beacon_block_t&>("message", message),
+              std::pair<const char*, signature_t&>("signature", signature));
+#endif
+};
+
 }  // namespace ssz

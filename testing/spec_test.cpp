@@ -202,6 +202,8 @@ const auto test_execution_payload_header = []() {
     test_ssz_static<ssz::execution_payload_header_t>("ExecutionPayloadHeader");
 };
 const auto test_beacon_block_body = []() { test_ssz_static<ssz::beacon_block_body_t>("BeaconBlockBody"); };
+const auto test_beacon_block = []() { test_ssz_static<ssz::beacon_block_t>("BeaconBlock"); };
+const auto test_signed_beacon_block = []() { test_ssz_static<ssz::signed_beacon_block_t>("SignedBeaconBlock"); };
 const auto test_validator = []() { test_ssz_static<ssz::validator_t>("Validator"); };
 const auto test_fork = []() { test_ssz_static<ssz::fork_t>("Fork"); };
 const auto test_historical_summary = []() { test_ssz_static<ssz::historical_summary_t>("HistoricalSummary"); };
@@ -218,6 +220,8 @@ TEST_LIST{{"checkpoint", test_checkpoint},
           {"signed_bls_change", test_signed_bls_change},
           {"beacon_block_header", test_beacon_block_header},
           {"signed_beacon_block_header", test_signed_beacon_block_header},
+          {"beacon_block", test_beacon_block},
+          {"signed_beacon_block", test_signed_beacon_block},
           {"eth1_data", test_eth1_data},
           {"proposer_slashing", test_proposer_slashing},
           {"deposit_data", test_deposit_data},
