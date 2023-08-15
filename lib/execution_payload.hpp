@@ -22,7 +22,7 @@
 #pragma once
 #include "beaconchain.hpp"
 #include "withdrawals.hpp"
-#include "uint256/uint256_t.h"
+#include "intx/intx.hpp"
 
 namespace ssz {
 constexpr size_t MAX_BYTES_PER_TRANSACTION{1 << 30};
@@ -41,7 +41,7 @@ struct execution_payload_t : ssz_variable_size_container {
     Root prev_randao;
     uint64_t block_number, gas_limit, gas_used, timestamp;
     ssz::list<std::byte, MAX_EXTRA_DATA_BYTES> extra_data;
-    uint256_t base_fee_per_gas;
+    intx::uint256 base_fee_per_gas;
     Root block_hash;
     ssz::list<transaction_t, MAX_TRANSACTIONS_PER_PAYLOAD> transactions;
     ssz::list<withdrawal_t, MAX_WITHDRAWALS_PER_PAYLOAD> withdrawals;
@@ -63,7 +63,7 @@ struct execution_payload_t : ssz_variable_size_container {
               std::pair<const char*, uint64_t&>("gas_used", gas_used),
               std::pair<const char*, uint64_t&>("timestamp", timestamp),
               std::pair<const char*, ssz::list<std::byte, MAX_EXTRA_DATA_BYTES>&>("extra_data", extra_data),
-              std::pair<const char*, uint256_t&>("base_fee_per_gas", base_fee_per_gas),
+              std::pair<const char*, intx::uint256&>("base_fee_per_gas", base_fee_per_gas),
               std::pair<const char*, Root&>("block_hash", block_hash),
               std::pair<const char*, ssz::list<transaction_t, MAX_TRANSACTIONS_PER_PAYLOAD>&>("transactions",
                                                                                               transactions),
@@ -80,7 +80,7 @@ struct execution_payload_header_t : ssz_variable_size_container {
     Root prev_randao;
     uint64_t block_number, gas_limit, gas_used, timestamp;
     ssz::list<std::byte, MAX_EXTRA_DATA_BYTES> extra_data;
-    uint256_t base_fee_per_gas;
+    intx::uint256 base_fee_per_gas;
     Root block_hash, transactions_root, withdrawals_root;
 
     constexpr auto operator<=>(const execution_payload_header_t& rhs) const noexcept = default;
@@ -100,7 +100,7 @@ struct execution_payload_header_t : ssz_variable_size_container {
               std::pair<const char*, uint64_t&>("gas_used", gas_used),
               std::pair<const char*, uint64_t&>("timestamp", timestamp),
               std::pair<const char*, ssz::list<std::byte, MAX_EXTRA_DATA_BYTES>&>("extra_data", extra_data),
-              std::pair<const char*, uint256_t&>("base_fee_per_gas", base_fee_per_gas),
+              std::pair<const char*, intx::uint256&>("base_fee_per_gas", base_fee_per_gas),
               std::pair<const char*, Root&>("block_hash", block_hash),
               std::pair<const char*, Root&>("transactions_root", transactions_root),
               std::pair<const char*, Root&>("withdrawals_root", withdrawals_root));
@@ -111,11 +111,11 @@ struct execution_payload_header_t : ssz_variable_size_container {
 #ifdef HAVE_YAML
 // Yaml decoding
 template <>
-struct YAML::convert<uint256_t> {
-    static bool decode(const YAML::Node& node, uint256_t& r) {
+struct YAML::convert<intx::uint256> {
+    static bool decode(const YAML::Node& node, intx::uint256& r) {
         std::string str;
         if (!YAML::convert<std::string>::decode(node, str)) return false;
-        r = uint256_t(str, 10);
+        r = intx::from_string<intx::uint256>(str);
         return true;
     }
 };

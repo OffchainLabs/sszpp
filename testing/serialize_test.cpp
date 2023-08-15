@@ -226,7 +226,7 @@ void test_deserialize_basic_list() {
   TEST_CHECK(result_list.limit() == 200);
 
   std::vector<bool> expected_bool{true, true, false, false, true};
-  std::vector<std::byte> bytes_bool{std::byte{0b00010011}};
+  std::vector<std::byte> bytes_bool{std::byte{0b00110011}};
   auto result_bool = ssz::deserialize<std::vector<bool>>(bytes_bool);
   TEST_CHECK(std::ranges::equal(result_bool, expected_bool));
 

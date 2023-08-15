@@ -27,7 +27,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <vector>
-#include <uint256/uint256_t.h>
+#include <intx/intx.hpp>
 
 namespace ssz {
 template <class T>
@@ -35,7 +35,7 @@ concept basic_type =
     std::is_same_v<std::remove_cvref_t<T>, std::uint8_t> || std::is_same_v<std::remove_cvref_t<T>, std::uint16_t> ||
     std::is_same_v<std::remove_cvref_t<T>, std::uint32_t> || std::is_same_v<std::remove_cvref_t<T>, std::uint64_t> ||
     std::is_same_v<std::remove_cvref_t<T>, bool> || std::is_same_v<std::remove_cvref_t<T>, std::byte> ||
-    std::is_same_v<std::remove_cvref_t<T>, uint256_t>;
+    std::is_same_v<std::remove_cvref_t<T>, intx::uint256>;
 
 template <class R>
 struct is_ssz_object : std::bool_constant<basic_type<R>> {};

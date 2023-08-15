@@ -31,6 +31,11 @@ if(CPPCHECK)
 	)
 endif()
 
+find_package(intx CONFIG REQUIRED)
+if(intx_FOUND)
+	message(STATUS "Found intx")
+endif()
+
 find_package(yaml-cpp)
 if(NOT yaml-cpp_FOUND)
     message(STATUS "Didn't find yaml-cpp, will not be able to run spectests")
@@ -56,26 +61,18 @@ if(TIDY)
 endif()
 
 add_executable( bench_beacon_state 
-                lib/uint256/uint128_t.cpp
-                lib/uint256/uint256_t.cpp
                 testing/bench_beacon_state.cpp
             )
 target_link_libraries(bench_beacon_state hashtree)
 add_executable( test_concepts
-                lib/uint256/uint128_t.cpp
-                lib/uint256/uint256_t.cpp
                 testing/concepts_test.cpp )
 target_link_libraries( test_concepts hashtree)
 add_executable( test_serialize
-                lib/uint256/uint128_t.cpp
-                lib/uint256/uint256_t.cpp
                 testing/serialize_test.cpp )
 target_link_libraries( test_serialize hashtree)
 
 if(yaml-cpp_FOUND AND Snappy_FOUND)
     add_executable( spectests
-                    lib/uint256/uint256_t.cpp
-                    lib/uint256/uint128_t.cpp
                     testing/spec_test.cpp 
                 )
     target_link_libraries(spectests hashtree yaml-cpp snappy )

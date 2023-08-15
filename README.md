@@ -8,6 +8,7 @@ It is focused on templated polymorphism, with no dynamic dispatching and perform
 - A compiler supporting C++23, tested only with GCC 13.1 (clang will fail due to lack of C++20 concepts)
 - [Hashtree](https://github.com/prysmaticlabs/hashtree) is used for hashing.
 - Cmake for building.
+- [intx](https://github.com/chfast/intx) for extended precision integers.
 - Optional for the spectest suite
     - [Yaml-cpp](https://github.com/jbeder/yaml-cpp)
     - [Snappy](https://github.com/google/snappy)
@@ -106,4 +107,4 @@ where `cpu_count` is the number of threads that you want to use. Using `0` (the 
 The library comes with all the consensus layer structures used in the `Capella`  fork, you can copy those as templates, or simply wrap your structures around them.
 
 ## License
-Licenced under the [Apache License version 2.0](https://apache.org/licenses/LICENSE-2.0.txt) except for [uint256_t](https://github.com/calccrypto/uint256_t) and [acutest](https://github.com/mity/acutest) (included) that are  licenced MIT. 
+Licenced under the [Apache License version 2.0](https://apache.org/licenses/LICENSE-2.0.txt) except for [acutest](https://github.com/mity/acutest) (included) that is licenced MIT. 
