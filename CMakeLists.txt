@@ -112,29 +112,30 @@ if(yaml-cpp_FOUND AND Snappy_FOUND)
                 )
     target_link_libraries(spectests hashtree yaml-cpp snappy )
     add_test( spectests spectests )
-endif()
-                    
-set( SPECTEST_URL "https://github.com/ethereum/consensus-spec-tests/releases/download")
-set( SPECTEST_VERSION "v1.4.0-beta.0")
-set( SPECTEST_MAINNET_HASH "5eeb9b7b0c882fe11ea14444cec44e9e77655f384d80b6743b1f0f82ec9a6599")
 
-file (DOWNLOAD "${SPECTEST_URL}/${SPECTEST_VERSION}/mainnet.tar.gz" ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
-    EXPECTED_HASH SHA256=${SPECTEST_MAINNET_HASH})
+    set( SPECTEST_URL "https://github.com/ethereum/consensus-spec-tests/releases/download")
+    set( SPECTEST_VERSION "v1.4.0-beta.0")
+    set( SPECTEST_MAINNET_HASH "5eeb9b7b0c882fe11ea14444cec44e9e77655f384d80b6743b1f0f82ec9a6599")
 
-add_custom_target( spec_test_unpack 
-    DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz )
+    file (DOWNLOAD "${SPECTEST_URL}/${SPECTEST_VERSION}/mainnet.tar.gz" ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
+          EXPECTED_HASH SHA256=${SPECTEST_MAINNET_HASH})
 
-add_custom_command(TARGET spec_test_unpack PRE_BUILD
+    add_custom_target(spec_test_unpack 
+                    DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz)
+
+    add_custom_command(TARGET spec_test_unpack
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/tests/mainnet
     COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
     COMMENT "Unpacking mainnet.tar.gz"
     VERBATIM
-)
+    )
 
-add_dependencies( test_serialize spec_test_unpack )
 
+    add_dependencies( spectests spec_test_unpack )
+endif()
+                    
 enable_testing()
 add_test( concepts test_concepts )
 add_test( serialize test_serialize )
