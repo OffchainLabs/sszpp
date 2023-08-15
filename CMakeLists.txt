@@ -1,5 +1,5 @@
-cmake_minimum_required( VERSION 3.5.0 FATAL_ERROR )
-project( ssz++ VERSION 0.1 LANGUAGES C CXX )
+cmake_minimum_required( VERSION 3.7 FATAL_ERROR )
+project(sszpp VERSION 0.1 LANGUAGES C CXX )
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -35,6 +35,41 @@ find_package(intx CONFIG REQUIRED)
 if(intx_FOUND)
 	message(STATUS "Found intx")
 endif()
+
+add_library(sszpp INTERFACE)
+target_include_directories(sszpp INTERFACE
+	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib>
+	$<INSTALL_INTERFACE:include/sszpp>
+)
+target_link_libraries(sszpp INTERFACE hashtree)
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    "${PROJECT_BINARY_DIR}/sszppConfigVersion.cmake"
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(TARGETS sszpp
+    EXPORT sszppTargets
+    LIBRARY DESTINATION lib COMPONENT Runtime
+    ARCHIVE DESTINATION lib COMPONENT Development
+    RUNTIME DESTINATION bin COMPONENT Runtime
+    PUBLIC_HEADER DESTINATION include COMPONENT Development
+    BUNDLE DESTINATION bin COMPONENT Runtime
+)
+
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+    "${PROJECT_SOURCE_DIR}/cmake/sszppConfig.cmake.in"
+    "${PROJECT_BINARY_DIR}/sszppConfig.cmake"
+    INSTALL_DESTINATION lib/cmake/sszpp
+)
+
+install(EXPORT sszppTargets DESTINATION lib/cmake/sszpp)
+install(FILES "${PROJECT_BINARY_DIR}/sszppConfigVersion.cmake"
+              "${PROJECT_BINARY_DIR}/sszppConfig.cmake"
+        DESTINATION lib/cmake/sszpp)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/lib/ DESTINATION include/sszpp)
 
 find_package(yaml-cpp)
 if(NOT yaml-cpp_FOUND)

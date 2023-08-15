@@ -22,6 +22,7 @@
 #pragma once
 #include <cstdint>
 
+#include "container.hpp"
 #include "fork.hpp"
 #include "validator.hpp"
 #include "historical_summary.hpp"

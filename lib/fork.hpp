@@ -19,6 +19,9 @@
  * limitations under the License.
  */
 #pragma once
+
+#include "container.hpp"
+
 namespace ssz {
 struct fork_t : ssz_container {
     using version_t = std::array<std::byte, 4>;

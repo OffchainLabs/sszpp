@@ -24,6 +24,7 @@
 
 #include <cstdint>
 #include "beaconchain.hpp"
+#include "attestation.hpp"
 #include "exits.hpp"
 #include "deposit.hpp"
 #include "sync_committee.hpp"

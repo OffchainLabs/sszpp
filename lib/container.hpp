@@ -26,7 +26,6 @@
 #endif
 
 #include "concepts.hpp"
-#include "lists.hpp"
 #include "merkleize.hpp"
 
 namespace ssz {

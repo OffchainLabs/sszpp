@@ -21,9 +21,8 @@
 #pragma once
 
 #include <stdexcept>
-#include "merkleize.hpp"
 #include "bitlists.hpp"
-#include "attestation.hpp"
+#include "container.hpp"
 
 namespace ssz {
 template <ssz_object T>
