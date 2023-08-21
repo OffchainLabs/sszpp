@@ -261,11 +261,7 @@ void hash_tree_root(ssz_iterator auto result, const R& r, size_t cpu_count = 0, 
     auto rsize = std::ranges::size(r);
     if (cpu_count == 0) cpu_count = std::thread::hardware_concurrency();
     if (cpu_count < 2 || rsize < 4) {
-        if constexpr (std::endian::native == std::endian::little) {
-            return _htr_array_of_array_little_endian(result, r, limit);
-        } else {
-            return _htr_big_endian_basic_list(result, r, limit);
-        }
+        return _htr_array_of_array_little_endian(result, r, limit);
     }
     auto half_size = std::bit_ceil(rsize) / 2;
     auto first = std::ranges::subrange(std::begin(r), std::begin(r) + half_size);

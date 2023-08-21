@@ -132,7 +132,6 @@ if(yaml-cpp_FOUND AND Snappy_FOUND)
     VERBATIM
     )
 
-
     add_dependencies( spectests spec_test_unpack )
 endif()
                     
