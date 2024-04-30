@@ -70,7 +70,7 @@ configure_package_config_file(
     INSTALL_DESTINATION lib/cmake/sszpp
 )
 
-install(EXPORT sszppTargets DESTINATION lib/cmake/sszpp)
+install(EXPORT sszppTargets NAMESPACE sszpp:: DESTINATION lib/cmake/sszpp)
 install(FILES "${PROJECT_BINARY_DIR}/sszppConfigVersion.cmake"
               "${PROJECT_BINARY_DIR}/sszppConfig.cmake"
         DESTINATION lib/cmake/sszpp)
