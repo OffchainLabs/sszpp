@@ -45,7 +45,7 @@ target_include_directories(sszpp INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib>
 	$<INSTALL_INTERFACE:include/sszpp>
 )
-target_link_libraries(sszpp INTERFACE Hashtree::Hashtree)
+target_link_libraries(sszpp INTERFACE Hashtree::Hashtree intx::intx)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
