@@ -38,12 +38,14 @@ if(intx_FOUND)
 	message(STATUS "Found intx")
 endif()
 
+find_package(Hashtree MODULE REQUIRED)
+
 add_library(sszpp INTERFACE)
 target_include_directories(sszpp INTERFACE
 	$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib>
 	$<INSTALL_INTERFACE:include/sszpp>
 )
-target_link_libraries(sszpp INTERFACE hashtree)
+target_link_libraries(sszpp INTERFACE Hashtree::Hashtree)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
@@ -73,11 +75,6 @@ install(FILES "${PROJECT_BINARY_DIR}/sszppConfigVersion.cmake"
         DESTINATION lib/cmake/sszpp)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/lib/ DESTINATION include/sszpp)
 
-find_package(Hashtree)
-if(Hashtree_FOUND)
-	message(STATUS "Found Hashtree")
-endif()
-
 option(TIDY "Analyze the code with clang-tidy")
 if(TIDY)
 	message(STATUS "Building with clang-tidy")
@@ -102,19 +99,19 @@ if(ENABLE_TESTS)
     add_executable( bench_beacon_state
                     testing/bench_beacon_state.cpp
                 )
-    target_link_libraries(bench_beacon_state hashtree)
+    target_link_libraries(bench_beacon_state Hashtree::Hashtree)
     add_executable( test_concepts
                     testing/concepts_test.cpp )
-    target_link_libraries( test_concepts hashtree)
+    target_link_libraries( test_concepts Hashtree::Hashtree)
     add_executable( test_serialize
                     testing/serialize_test.cpp )
-    target_link_libraries( test_serialize hashtree)
+    target_link_libraries( test_serialize Hashtree::Hashtree)
 
     if(yaml-cpp_FOUND AND Snappy_FOUND)
         add_executable( spectests
                         testing/spec_test.cpp
                     )
-        target_link_libraries(spectests hashtree yaml-cpp snappy )
+        target_link_libraries(spectests Hashtree::Hashtree yaml-cpp snappy )
         add_test( spectests spectests )
 
         set( SPECTEST_URL "https://github.com/ethereum/consensus-spec-tests/releases/download")
