@@ -19,6 +19,8 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 set( CMAKE_EXPORT_COMPILE_COMMANDS ON ) #youcompleteme
 
+option(ENABLE_TESTS "Build tests" ON)
+
 option(CPPCHECK "Analyze the code with cppcheck")
 if(CPPCHECK)
 	message(STATUS "Building with cppcheck")
@@ -71,19 +73,6 @@ install(FILES "${PROJECT_BINARY_DIR}/sszppConfigVersion.cmake"
         DESTINATION lib/cmake/sszpp)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/lib/ DESTINATION include/sszpp)
 
-find_package(yaml-cpp)
-if(NOT yaml-cpp_FOUND)
-    message(STATUS "Didn't find yaml-cpp, will not be able to run spectests")
-else()
-    add_compile_definitions( HAVE_YAML )
-    message(STATUS "Found yaml-cpp")
-endif()
-find_package(Snappy)
-if(NOT Snappy_FOUND)
-    message(STATUS "Didn't find snappy, will not be able to run spectests")
-else() 
-    message(STATUS "Found Snappy")
-endif()
 find_package(Hashtree)
 if(Hashtree_FOUND)
 	message(STATUS "Found Hashtree")
@@ -95,46 +84,62 @@ if(TIDY)
 	set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 endif()
 
-add_executable( bench_beacon_state 
-                testing/bench_beacon_state.cpp
-            )
-target_link_libraries(bench_beacon_state hashtree)
-add_executable( test_concepts
-                testing/concepts_test.cpp )
-target_link_libraries( test_concepts hashtree)
-add_executable( test_serialize
-                testing/serialize_test.cpp )
-target_link_libraries( test_serialize hashtree)
+if(ENABLE_TESTS)
+    find_package(yaml-cpp)
+    if(NOT yaml-cpp_FOUND)
+        message(STATUS "Didn't find yaml-cpp, will not be able to run spectests")
+    else()
+        add_compile_definitions( HAVE_YAML )
+        message(STATUS "Found yaml-cpp")
+    endif()
+    find_package(Snappy)
+    if(NOT Snappy_FOUND)
+        message(STATUS "Didn't find snappy, will not be able to run spectests")
+    else()
+        message(STATUS "Found Snappy")
+    endif()
 
-if(yaml-cpp_FOUND AND Snappy_FOUND)
-    add_executable( spectests
-                    testing/spec_test.cpp 
+    add_executable( bench_beacon_state
+                    testing/bench_beacon_state.cpp
                 )
-    target_link_libraries(spectests hashtree yaml-cpp snappy )
-    add_test( spectests spectests )
+    target_link_libraries(bench_beacon_state hashtree)
+    add_executable( test_concepts
+                    testing/concepts_test.cpp )
+    target_link_libraries( test_concepts hashtree)
+    add_executable( test_serialize
+                    testing/serialize_test.cpp )
+    target_link_libraries( test_serialize hashtree)
 
-    set( SPECTEST_URL "https://github.com/ethereum/consensus-spec-tests/releases/download")
-    set( SPECTEST_VERSION "v1.4.0-beta.0")
-    set( SPECTEST_MAINNET_HASH "5eeb9b7b0c882fe11ea14444cec44e9e77655f384d80b6743b1f0f82ec9a6599")
+    if(yaml-cpp_FOUND AND Snappy_FOUND)
+        add_executable( spectests
+                        testing/spec_test.cpp
+                    )
+        target_link_libraries(spectests hashtree yaml-cpp snappy )
+        add_test( spectests spectests )
 
-    file (DOWNLOAD "${SPECTEST_URL}/${SPECTEST_VERSION}/mainnet.tar.gz" ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
-          EXPECTED_HASH SHA256=${SPECTEST_MAINNET_HASH})
+        set( SPECTEST_URL "https://github.com/ethereum/consensus-spec-tests/releases/download")
+        set( SPECTEST_VERSION "v1.4.0-beta.0")
+        set( SPECTEST_MAINNET_HASH "5eeb9b7b0c882fe11ea14444cec44e9e77655f384d80b6743b1f0f82ec9a6599")
 
-    add_custom_target(spec_test_unpack 
-                    DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz)
+        file (DOWNLOAD "${SPECTEST_URL}/${SPECTEST_VERSION}/mainnet.tar.gz" ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
+            EXPECTED_HASH SHA256=${SPECTEST_MAINNET_HASH})
 
-    add_custom_command(TARGET spec_test_unpack
-    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/tests/mainnet
-    COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-    DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
-    COMMENT "Unpacking mainnet.tar.gz"
-    VERBATIM
-    )
+        add_custom_target(spec_test_unpack
+                        DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz)
 
-    add_dependencies( spectests spec_test_unpack )
+        add_custom_command(TARGET spec_test_unpack
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}/tests/mainnet
+        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        DEPENDS ${CMAKE_SOURCE_DIR}/testing/mainnet.tar.gz
+        COMMENT "Unpacking mainnet.tar.gz"
+        VERBATIM
+        )
+
+        add_dependencies( spectests spec_test_unpack )
+    endif()
+
+    enable_testing()
+    add_test( concepts test_concepts )
+    add_test( serialize test_serialize )
 endif()
-                    
-enable_testing()
-add_test( concepts test_concepts )
-add_test( serialize test_serialize )
