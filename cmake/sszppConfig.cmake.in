@@ -1,5 +1,12 @@
 @PACKAGE_INIT@
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}")
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(intx CONFIG REQUIRED)
+find_dependency(Hashtree MODULE REQUIRED)
+
 include("${CMAKE_CURRENT_LIST_DIR}/sszppTargets.cmake")
 check_required_components("@PROJECT_NAME@")
 

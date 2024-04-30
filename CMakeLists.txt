@@ -74,6 +74,7 @@ install(EXPORT sszppTargets NAMESPACE sszpp:: DESTINATION lib/cmake/sszpp)
 install(FILES "${PROJECT_BINARY_DIR}/sszppConfigVersion.cmake"
               "${PROJECT_BINARY_DIR}/sszppConfig.cmake"
         DESTINATION lib/cmake/sszpp)
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/.cmake_modules/" DESTINATION lib/cmake/sszpp)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/lib/ DESTINATION include/sszpp)
 
 option(TIDY "Analyze the code with clang-tidy")
