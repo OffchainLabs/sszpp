@@ -45,12 +45,14 @@ struct execution_payload_t : ssz_variable_size_container {
     Root block_hash;
     ssz::list<transaction_t, MAX_TRANSACTIONS_PER_PAYLOAD> transactions;
     ssz::list<withdrawal_t, MAX_WITHDRAWALS_PER_PAYLOAD> withdrawals;
+    uint64_t blob_gas_used, excess_blob_gas;
 
     constexpr auto operator<=>(const execution_payload_t& rhs) const noexcept = default;
     constexpr bool operator==(const execution_payload_t& rhs) const noexcept = default;
 
     SSZ_CONT(parent_hash, fee_recipient, state_root, receipts_root, logs_bloom, prev_randao, block_number, gas_limit,
-             gas_used, timestamp, extra_data, base_fee_per_gas, block_hash, transactions, withdrawals);
+             gas_used, timestamp, extra_data, base_fee_per_gas, block_hash, transactions, withdrawals, blob_gas_used,
+             excess_blob_gas);
 #ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Root&>("parent_hash", parent_hash),
               std::pair<const char*, execution_address_t&>("fee_recipient", fee_recipient),
@@ -67,8 +69,10 @@ struct execution_payload_t : ssz_variable_size_container {
               std::pair<const char*, Root&>("block_hash", block_hash),
               std::pair<const char*, ssz::list<transaction_t, MAX_TRANSACTIONS_PER_PAYLOAD>&>("transactions",
                                                                                               transactions),
-              std::pair<const char*, ssz::list<withdrawal_t, MAX_WITHDRAWALS_PER_PAYLOAD>&>("withdrawals",
-                                                                                            withdrawals));
+              std::pair<const char*, ssz::list<withdrawal_t, MAX_WITHDRAWALS_PER_PAYLOAD>&>("withdrawals", withdrawals),
+
+              std::pair<const char*, uint64_t&>("blob_gas_used", blob_gas_used),
+              std::pair<const char*, uint64_t&>("excess_blob_gas", excess_blob_gas));
 #endif
 };
 
@@ -82,12 +86,14 @@ struct execution_payload_header_t : ssz_variable_size_container {
     ssz::list<std::byte, MAX_EXTRA_DATA_BYTES> extra_data;
     intx::uint256 base_fee_per_gas;
     Root block_hash, transactions_root, withdrawals_root;
+    uint64_t blob_gas_used, excess_blob_gas;
 
     constexpr auto operator<=>(const execution_payload_header_t& rhs) const noexcept = default;
     constexpr bool operator==(const execution_payload_header_t& rhs) const noexcept = default;
 
     SSZ_CONT(parent_hash, fee_recipient, state_root, receipts_root, logs_bloom, prev_randao, block_number, gas_limit,
-             gas_used, timestamp, extra_data, base_fee_per_gas, block_hash, transactions_root, withdrawals_root);
+             gas_used, timestamp, extra_data, base_fee_per_gas, block_hash, transactions_root, withdrawals_root,
+             blob_gas_used, excess_blob_gas);
 #ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, Root&>("parent_hash", parent_hash),
               std::pair<const char*, execution_address_t&>("fee_recipient", fee_recipient),
@@ -103,7 +109,9 @@ struct execution_payload_header_t : ssz_variable_size_container {
               std::pair<const char*, intx::uint256&>("base_fee_per_gas", base_fee_per_gas),
               std::pair<const char*, Root&>("block_hash", block_hash),
               std::pair<const char*, Root&>("transactions_root", transactions_root),
-              std::pair<const char*, Root&>("withdrawals_root", withdrawals_root));
+              std::pair<const char*, Root&>("withdrawals_root", withdrawals_root),
+              std::pair<const char*, uint64_t&>("blob_gas_used", blob_gas_used),
+              std::pair<const char*, uint64_t&>("excess_blob_gas", excess_blob_gas));
 #endif
 };
 }  // namespace ssz

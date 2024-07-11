@@ -95,6 +95,11 @@ if(TIDY)
 	set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
 endif()
 
+add_executable( bench_root_list 
+                testing/bench_root_list.cpp
+            )
+target_link_libraries(bench_root_list hashtree)
+
 add_executable( bench_beacon_state 
                 testing/bench_beacon_state.cpp
             )

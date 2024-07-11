@@ -26,6 +26,7 @@ using Slot = std::uint64_t;  // If you want a typesafe slot, use enum
 using Epoch = std::uint64_t;
 using ValidatorIndex = std::uint64_t;
 using Root = std::array<std::byte, 32>;
+using blob_kzg_commitments_t = std::array<std::byte, 48>;
 using signature_t = std::array<std::byte, 96>;
 using bls_pubkey_t = std::array<std::byte, 48>;
 using execution_address_t = std::array<std::byte, 20>;

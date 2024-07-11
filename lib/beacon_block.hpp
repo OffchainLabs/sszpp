@@ -35,6 +35,7 @@ namespace ssz{
 constexpr size_t MAX_ATTESTER_SLASHINGS{2};
 constexpr size_t MAX_PROPOSER_SLASHINGS{16};
 constexpr size_t MAX_BLS_TO_EXECUTION_CHANGES{16};
+constexpr size_t MAX_BLOB_COMMITMENTS_PER_BLOCK{4096};
 constexpr std::size_t MAX_DEPOSITS{16};
 
 struct eth1_data_t : ssz_container {
@@ -123,12 +124,13 @@ struct beacon_block_body_t : ssz_variable_size_container {
     sync_aggregate_t sync_aggregate;
     execution_payload_t execution_payload;
     ssz::list<signed_bls_to_execution_change_t, MAX_BLS_TO_EXECUTION_CHANGES> bls_to_execution_changes;
+    ssz::list<blob_kzg_commitments_t, MAX_BLOB_COMMITMENTS_PER_BLOCK> blob_kzg_commitments;
 
     constexpr auto operator<=>(const beacon_block_body_t& rhs) const noexcept = default;
     constexpr bool operator==(const beacon_block_body_t& rhs) const noexcept = default;
 
     SSZ_CONT(randao_reveal, eth1_data, graffiti, proposer_slashings, attester_slashings, attestations, deposits,
-             voluntary_exits, sync_aggregate, execution_payload, bls_to_execution_changes);
+             voluntary_exits, sync_aggregate, execution_payload, bls_to_execution_changes, blob_kzg_commitments);
 #ifdef HAVE_YAML
     YAML_CONT(std::pair<const char*, signature_t&>("randao_reveal", randao_reveal),
               std::pair<const char*, eth1_data_t&>("eth1_data", eth1_data),
@@ -144,7 +146,9 @@ struct beacon_block_body_t : ssz_variable_size_container {
               std::pair<const char*, sync_aggregate_t&>("sync_aggregate", sync_aggregate),
               std::pair<const char*, execution_payload_t&>("execution_payload", execution_payload),
               std::pair<const char*, ssz::list<signed_bls_to_execution_change_t, MAX_BLS_TO_EXECUTION_CHANGES>&>(
-                  "bls_to_execution_changes", bls_to_execution_changes));
+                  "bls_to_execution_changes", bls_to_execution_changes),
+              std::pair<const char*, ssz::list<blob_kzg_commitments_t, MAX_BLOB_COMMITMENTS_PER_BLOCK>&>(
+                  "blob_kzg_commitments", blob_kzg_commitments));
 #endif
 };
 
